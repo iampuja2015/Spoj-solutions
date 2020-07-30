@@ -1,0 +1,116 @@
+#include<bits/stdc++.h>
+#define lli long long int
+using namespace std;
+lli a[50010];
+struct data{
+    lli sum,pref,suff,ans;
+};
+data dt[200005];
+data combine(data l, data r)
+{
+    data res;
+    if(l.sum==LONG_MIN)
+    {
+        res.sum=r.sum;
+        res.pref=r.pref;
+        res.suff=max(r.suff, r.sum);
+        res.ans=max(r.ans,r.pref);
+    }
+    else if(r.sum==LONG_MIN)
+    {
+        res.sum=l.sum;
+        res.pref=max(l.pref,l.sum);
+        res.suff=l.suff;
+        res.ans=max(l.ans,l.suff);
+ 
+    }
+    else
+    {
+        res.sum = l.sum + r.sum;
+        res.pref = max(l.pref, l.sum + r.pref);
+        res.suff = max(r.suff, r.sum + l.suff);
+        res.ans = max(max(l.ans, r.ans), l.suff + r.pref);
+ 
+    }
+ 
+    return res;
+}
+data make_pair(lli val)
+{
+    data res;
+    res.sum=val;
+    res.pref=val;
+    res.suff=val;
+    res.ans=val;
+    return res;
+ 
+}
+void build(lli si,lli ss,lli se)
+{
+    if(ss==se)
+    {
+        dt[si]=make_pair(a[ss]);
+        return;
+    }
+    lli mid=(ss+se)/2;
+    build(2*si,ss,mid);
+    build(2*si+1,mid+1,se);
+ 
+    dt[si]=combine(dt[2*si], dt[2*si+1]);
+ 
+}
+data query(lli si,lli ss,lli se,lli qs,lli qe)
+{
+    if(qe<ss || se<qs)
+        return make_pair(LONG_MIN);
+    else if(qs<=ss && se<=qe)
+        return dt[si];
+    lli mid=(ss+se)/2;
+    return combine(query(si*2, ss, mid, qs, qe),
+                   query(si*2+1, mid+1, se , qs , qe));
+ 
+}
+void update(lli si,lli ss,lli se,lli pos, lli val)
+{
+    if(ss==se)
+        dt[si]= make_pair(val);
+    else
+    {
+        lli mid=(ss+se)/2;
+        if(pos<=mid)
+            update(2*si, ss, mid, pos, val);
+        else
+            update(2*si+1, mid+1, se, pos,val);
+        dt[si]=combine(dt[2*si], dt[2*si+1]);
+ 
+    }
+ 
+}
+int main()
+{
+    lli n;
+    cin>>n;
+    for(lli i=0;i<n;i++)
+        cin>>a[i];
+    build(1,0,n-1);
+    lli m,l,r;
+    int q;
+    cin>>m;
+    while(m--)
+    {
+        cin>>q>>l>>r;
+        if(q == 0)
+        {
+            a[l-1]=r;
+            update(1,0,n-1,l-1,r);
+ 
+        }
+ 
+        else if(q == 1)
+        {
+            data an=query(1,0,n-1,l-1,r-1);
+            cout<<an.ans<<endl;
+        }
+    }
+ 
+}
