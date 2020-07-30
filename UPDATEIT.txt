@@ -1,0 +1,75 @@
+//Uses Lazy Propagation
+
+#include<bits/stdc++.h>
+using namespace std;
+ 
+int st[400004], lazy[400004];
+void update(int si, int ss, int se, int qs, int qe,int val)
+{
+    if(lazy[si]!=0)
+    {
+        int dx=lazy[si];
+        lazy[si]=0;
+        st[si]+=dx*(se-ss+1);
+        if(ss!=se)
+            lazy[2*si]+=dx, lazy[2*si+1]+=dx;
+    }
+    if(ss> qe || se<qs)
+        return;
+    if(ss>=qs && se<=qe)
+    {
+        int dx=(se-ss+1)*val;
+        st[si]+=dx;
+        if(ss!=se)
+            lazy[2*si]+=val, lazy[2*si+1]+=val;
+        return;
+    }
+    int mid=(ss+se)/2;
+    update(2*si, ss, mid, qs, qe, val);
+    update(2*si+1, mid+1, se, qs, qe, val);
+    st[si]= st[2*si] + st[2*si+1];
+}
+ 
+int query(int si, int ss, int se, int qs, int qe)
+{
+    if(lazy[si]!=0)
+    {
+        int dx=lazy[si];
+        lazy[si]=0;
+        st[si]+=dx*(se-ss+1);
+        if(ss!=se)
+            lazy[2*si]+=dx, lazy[2*si+1]+=dx;
+    }
+    if(ss> qe || se<qs)
+        return 0;
+    if(ss>=qs && se<=qe)
+        return st[si];
+    int mid=(ss+se)/2;
+    return query(2*si, ss, mid, qs, qe) + query(2*si+1, mid+1, se, qs , qe);
+    st[si]= st[2*si] + st[2*si+1];
+}
+int main()
+{
+    ios_base::sync_with_stdio(false);
+    cin.tie(0);
+    cout.tie(0);
+    int t,n,u,a,b,val,q;
+    cin>>t;
+    while(t--)
+    {
+        cin>>n>>u;
+        for(int i=0;i<4*n;i++)
+            st[i]=0,lazy[i]=0;
+        while(u--)
+        {
+            cin>>a>>b>>val;
+            update(1,0,n-1,a,b,val);
+        }
+        cin>>q;
+        while(q--)
+        {
+            cin>>a;
+            cout<<query(1,0,n-1,a,a)<<"\n";
+        }
+    }
+}
