@@ -1,0 +1,47 @@
+#include<bits/stdc++.h>
+#define lli long long int
+using namespace std;
+int a[100001][7];
+int n,d;
+lli perform(int ff[])
+{
+    lli maxv=LONG_MIN,minv=LONG_MAX;
+    for(int i=0;i<n;i++)
+    {
+        lli ele=0;
+        for(int j=0;j<d;j++)
+        {
+           ele+=(((-2*ff[j])+1)*a[i][j]);
+           if(maxv<ele) maxv=ele;
+           if(minv>ele) minv=ele;
+        }
+    }
+    return abs(maxv-minv);
+}
+ 
+int main()
+{
+    cin>>n>>d;
+    for(int i=0;i<n;i++)
+    {
+        for(int j=0;j<d;j++)
+            cin>>a[i][j];
+    }
+    int tot=1<<d;
+    vector<lli> v;
+    for(int i=0; i<tot;i++)
+    {
+        int ff[d]={0};
+        for(int mask=0;mask<d;mask++)
+        {
+            int f=1<<mask;
+            if((i&f)!=0)
+                ff[mask]=1;
+ 
+        }
+        lli a=perform(ff);
+        v.push_back(a);
+    }
+    sort(v.begin(),v.end(),greater<lli>());
+    cout<<v[0]<<endl;
+}
